@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Photography/Videography Request</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        /* Styles remain largely the same as your previous update_job.html */
+        body {
+            background-color: #e3f2fd;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+             margin: auto; /* Center container */
+        }
+        .section {
+            background: #bbdefb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #01579b;
+            margin-bottom: 10px;
+        }
+        .form-group {
+             margin-bottom: 1rem; /* Add space between form groups */
+        }
+         label {
+            display: inline-block;
+            margin-bottom: .5rem;
+            font-weight: bold; /* Make labels bold */
+        }
+        /* Photographer list styling */
+         #photographerList li {
+            margin-bottom: 5px;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #photographerList .btn-danger {
+            padding: 0.1rem 0.4rem;
+            font-size: 0.7rem;
+            line-height: 1;
+        }
+        /* Day-wise assignment styling */
+         .day-assignment-block {
+             margin-bottom: 1rem;
+             padding: 1rem;
+             border: 1px solid #dee2e6;
+             border-radius: 0.25rem;
+         }
+        .day-assignment-block .form-check {
+            margin-bottom: 0.5rem; /* Space between checkboxes */
+        }
+        .day-assignment-block .form-check-label {
+             margin-left: 5px; /* Space label from checkbox */
+             font-weight: normal; /* Normal weight for checkbox labels */
+        }
+        /* Center buttons */
+        .form-buttons {
+             text-align: center;
+             margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3 class="text-center mb-4"><i class="fas fa-camera"></i> Update Photography/Videography Request</h3>
+
+        <form action="{{ url_for('update_job', photoid=job.photoid) }}" method="POST">
+
+             <div class="section">
+                 <div class="section-title">Job Identification</div>
+                 <div class="form-group">
+                     <label for="jobcode">Job Code</label>
+                     <input type="text" id="jobcode" class="form-control" value="{{ job.jobcode }}" readonly>
+                 </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Event Information</div>
+                <div class="form-group">
+                    <label for="eventcode">Event Code <span class="text-danger">*</span></label>
+                    <select class="form-control" id="eventcode" name="eventcode" required>
+                        <option value="">-- Select Event Code --</option>
+                        {% for event in event_codes %}
+                        <option value="{{ event.code }}" {% if event.code == job.eventcode %}selected{% endif %}>
+                            {{ event.code }} - {{ event.description }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="event_title">Event Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="event_title" name="event_title" value="{{ job.event_title or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="event_venue">Event Venue <span class="text-danger">*</span></label>
+                    <select class="form-control" id="event_venue" name="event_venue" required>
+                        <option value="">-- Select Event Venue --</option>
+                        {% for venue in event_venues %}
+                        <option value="{{ venue.name }}" {% if venue.name == job.event_venue %}selected{% endif %}>
+                            {{ venue.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Requirement & Scheduling</div>
+                <div class="form-group">
+                    <label>Requirement Type <span class="text-danger">*</span></label><br>
+                    <div class="form-check form-check-inline">
+                         <input class="form-check-input" type="radio" name="r_type" id="r_type_photo" value="Photography" {% if job.r_type == 'Photography' %}checked{% endif %} required>
+                         <label class="form-check-label" for="r_type_photo">Photography</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="r_type" id="r_type_video" value="Videography" {% if job.r_type == 'Videography' %}checked{% endif %}>
+                        <label class="form-check-label" for="r_type_video">Videography</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                         <input class="form-check-input" type="radio" name="r_type" id="r_type_both" value="Both" {% if job.r_type == 'Both' %}checked{% endif %}>
+                         <label class="form-check-label" for="r_type_both">Both</label>
+                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="photographerDropdown">Select Photographer(s) (Initial List)</label>
+                    <select id="photographerDropdown" class="form-control">
+                        <option value="">-- Add Photographer to Initial List --</option>
+                        {% for p in photographers %} {# Use the variable name passed from Flask #}
+                        <option value="{{ p.name }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                     <small class="form-text text-muted">Select from dropdown to add below. Daily assignments follow.</small>
+                </div>
+
+                <div id="selectedPhotographers" class="mt-2 mb-3">
+                    <label>Initial Photographer List:</label>
+                    <ul id="photographerList" class="list-unstyled">
+                        </ul>
+                </div>
+                <input type="hidden" name="photographer_selection" id="photographerSelectionInput" value="{{ job.photographer_selection or '' }}">
+
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                         <label for="event_ti_fm">Time From <span class="text-danger">*</span></label>
+                         <input type="time" class="form-control" id="event_ti_fm" name="event_ti_fm"
+                                value="{{ job.event_ti_fm.strftime('%H:%M') if job.event_ti_fm else '' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                         <label for="event_ti_to">Time To <span class="text-danger">*</span></label>
+                         <input type="time" class="form-control" id="event_ti_to" name="event_ti_to"
+                                value="{{ job.event_ti_to.strftime('%H:%M') if job.event_ti_to else '' }}" required>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label for="event_dt_fm">Event Date From <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="event_dt_fm" name="event_dt_fm"
+                               value="{{ job.event_dt_fm.strftime('%Y-%m-%d') if job.event_dt_fm else '' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="event_dt_to">Event Date To <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="event_dt_to" name="event_dt_to"
+                               value="{{ job.event_dt_to.strftime('%Y-%m-%d') if job.event_dt_to else '' }}" required>
+                    </div>
+                </div>
+
+                <div id="dayWisePhotographers" class="mt-4">
+                     </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Requester Details</div>
+                <div class="form-group">
+                    <label for="requester_name">Requester Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="requester_name" name="requester_name" value="{{ job.requester_name or '' }}" required>
+                </div>
+                 <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="request_phone">Requester Phone <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="request_phone" name="request_phone" pattern="[0-9\+\-\(\) ]{7,}" placeholder="Enter phone number" value="{{ job.request_phone or '' }}" required>
+                         </div>
+                    </div>
+                     <div class="col-md-6">
+                         <div class="form-group">
+                             <label for="request_email">Requester Email <span class="text-danger">*</span></label>
+                             <input type="email" class="form-control" id="request_email" name="request_email" value="{{ job.request_email or '' }}" required>
+                         </div>
+                    </div>
+                 </div>
+                <div class="form-group">
+                    <label for="request_div">Requester Division</label>
+                    <input type="text" class="form-control" id="request_div" name="request_div" value="{{ job.request_div or '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="remarks">Remarks</label>
+                    <textarea class="form-control" id="remarks" name="remarks" rows="3">{{ job.remarks or '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Request
+                </button>
+                 <a href="{{ url_for('job') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        // Data passed from Flask
+        const initialPhotographerListString = {{ (job.photographer_selection | default('')) | tojson }};
+        const dailyAssignments = {{ (daily_assignments | default({})) | tojson }};
+
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("DOM Loaded. Initializing update form script."); // Debug Start
+
+            const dropdown = document.getElementById("photographerDropdown");
+            const listElement = document.getElementById("photographerList");
+            const hiddenInput = document.getElementById("photographerSelectionInput");
+            const eventFrom = document.getElementById("event_dt_fm");
+            const eventTo = document.getElementById("event_dt_to");
+            const dayWiseContainer = document.getElementById("dayWisePhotographers");
+
+            // Initialize selectedPhotographers array from the hidden input (which got value from Flask)
+            let selectedPhotographers = hiddenInput.value ? hiddenInput.value.split(',').map(s => s.trim()).filter(s => s) : [];
+            console.log("Initial selectedPhotographers array:", selectedPhotographers); // Debug Initial Array
+
+            // --- Initialization Sequence ---
+            // 1. Update the initial photographer list UI based on the array
+            updatePhotographerListUI();
+            console.log("Initial photographer list UI updated."); // Debug UI Update
+
+            // 2. Attempt to generate the day-wise selection based on current state
+            console.log("Attempting initial generation of day-wise selection..."); // Debug Generate Call
+            generateDayWiseSelection();
+             // --- End Initialization Sequence ---
+
+            dropdown.addEventListener("change", function () {
+                const selectedValue = dropdown.value;
+                if (selectedValue && !selectedPhotographers.includes(selectedValue)) {
+                    console.log(`Adding photographer: ${selectedValue}`);
+                    selectedPhotographers.push(selectedValue);
+                    updatePhotographerListUI(); // Update UI and hidden input
+                    // Regenerate daily section *after* initial list UI is updated
+                    generateDayWiseSelection();
+                }
+                dropdown.value = ""; // Reset dropdown
+            });
+
+            // Updates the displayed list UI and the hidden input value
+            function updatePhotographerListUI() {
+                console.log("Running updatePhotographerListUI..."); // Debug Function Entry
+                listElement.innerHTML = "";
+                selectedPhotographers.forEach(name => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                    <span>${name}</span>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removePhotographer('${name}')">X</button>
+                `;
+
+                    listElement.appendChild(li);
+                });
+                // Update hidden input
+                hiddenInput.value = selectedPhotographers.join(", ");
+                console.log("Updated hiddenInput value:", hiddenInput.value); // Debug Hidden Input
+            }
+
+            // Make removePhotographer globally accessible
+            window.removePhotographer = function (name) {
+                console.log(`Removing photographer: ${name}`);
+                selectedPhotographers = selectedPhotographers.filter(n => n !== name);
+                updatePhotographerListUI(); // Update UI and hidden input
+                // Regenerate daily section as initial list changed
+                generateDayWiseSelection();
+            };
+
+            // Generates/Regenerates the daily photographer assignment checkboxes
+            function generateDayWiseSelection() {
+                console.log("Running generateDayWiseSelection..."); // Debug Function Entry
+                dayWiseContainer.innerHTML = ""; // Clear previous
+                let startDate, endDate;
+                try {
+                    startDate = eventFrom.value ? new Date(eventFrom.value + 'T00:00:00Z') : null;
+                    endDate = eventTo.value ? new Date(eventTo.value + 'T00:00:00Z') : null;
+                    console.log(`Parsed Dates - Start: ${startDate}, End: ${endDate}`); // Debug Dates
+                    if (!startDate || !endDate || isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+                         console.log("-> Invalid or incomplete date range. Stopping generation.");
+                        return; // Stop if dates invalid/incomplete
+                    }
+                } catch (e) {
+                     console.error("-> Error parsing dates:", e);
+                     return;
+                } // Stop on date parse error
+
+                // ** CRUCIAL CHECK: Check if photographers are selected **
+                if (selectedPhotographers.length === 0) {
+                    console.log("-> No initial photographers selected. Stopping generation.");
+                     dayWiseContainer.innerHTML = '<p class="text-muted fst-italic">Select initial photographers above to assign them daily.</p>'; // User feedback
+                    return; // Nothing to assign daily if initial list is empty
+                }
+                 console.log(`-> Dates valid and ${selectedPhotographers.length} photographer(s) selected. Proceeding.`);
+
+                // Add Header
+                let header = document.createElement('h5');
+                header.textContent = "Assign Photographers Per Day";
+                header.className = "mt-3 mb-3";
+                dayWiseContainer.appendChild(header);
+
+                // Loop through dates
+                for (let d = new Date(startDate); d <= endDate; d.setUTCDate(d.getUTCDate() + 1)) {
+                    const dateStr = d.toISOString().split("T")[0]; // YYYY-MM-DD
+                    const dayName = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+                    console.log(`  -> Generating checkboxes for date: ${dateStr}`); // Debug Date Loop
+
+                    // Create Day Block elements (same as before)
+                    // ... (dayBlock, dayLabel, checkGroup creation) ...
+                    const dayBlock = document.createElement('div');
+                    dayBlock.className = 'mb-3 p-3 border rounded day-assignment-block';
+                    const dayLabel = document.createElement('label');
+                    dayLabel.className = 'form-label d-block fw-bold';
+                    dayLabel.textContent = `${dateStr} (${dayName})`;
+                    dayBlock.appendChild(dayLabel);
+                    const checkGroup = document.createElement('div');
+
+
+                    // Create checkboxes ONLY for photographers currently in 'selectedPhotographers' JS array
+                    selectedPhotographers.forEach(photographer => {
+                         // ... (checkboxId, checkboxName, formCheckDiv, checkbox creation) ...
+                        const checkboxId = `${photographer.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr}`;
+
+                        const checkboxName = `day_photographers_${dateStr}`;
+                        const formCheckDiv = document.createElement('div');
+                        formCheckDiv.className = 'form-check';
+                        const checkbox = document.createElement('input');
+                        checkbox.className = 'form-check-input';
+                        checkbox.type = 'checkbox';
+                        checkbox.name = checkboxName;
+                        checkbox.value = photographer;
+                        checkbox.id = checkboxId;
+
+                        // Accurate Pre-checking using dailyAssignments from Flask
+                        let isChecked = false;
+                        if (dailyAssignments[dateStr] && dailyAssignments[dateStr].includes(photographer)) {
+                            checkbox.checked = true;
+                            isChecked = true; // For logging
+                        }
+                        // console.log(`    - Checkbox for ${photographer} on ${dateStr}. Pre-checked: ${isChecked}`); // Debug Checkbox Pre-check
+
+                        // ... (label creation and appending) ...
+                        const label = document.createElement('label');
+                        label.className = 'form-check-label';
+                        label.htmlFor = checkboxId;
+                        label.textContent = photographer;
+                        formCheckDiv.appendChild(checkbox);
+                        formCheckDiv.appendChild(label);
+                        checkGroup.appendChild(formCheckDiv);
+
+                    }); // End foreach photographer
+
+                    dayBlock.appendChild(checkGroup);
+                    dayWiseContainer.appendChild(dayBlock);
+                } // End for loop through dates
+                console.log("-> Finished generating day-wise checkboxes."); // Debug Function End
+            } // End generateDayWiseSelection
+
+            // Add event listeners to date inputs
+            eventFrom.addEventListener("change", generateDayWiseSelection);
+            eventTo.addEventListener("change", generateDayWiseSelection);
+
+        }); // End DOMContentLoaded
+    </script>
+</body>
+</html>

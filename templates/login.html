@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Flask App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            /* Lighter background gradient */
+            background: linear-gradient(135deg, #a8d0e6, #b8e0f2, #c8f0ff);
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+
+        /* Floating animated shapes in background */
+        .floating-shape {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+        .shape1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 10%;
+            animation-duration: 25s;
+        }
+        .shape2 {
+            width: 300px;
+            height: 300px;
+            top: 60%;
+            right: 5%;
+            animation-duration: 35s;
+        }
+        .shape3 {
+            width: 150px;
+            height: 150px;
+            bottom: 10%;
+            left: 20%;
+            animation-duration: 20s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-40px) rotate(180deg);
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+            }
+        }
+
+        .main-container {
+            display: flex;
+            width: 95%;
+            max-width: 1200px;
+            height: auto;
+            min-height: 500px;
+            margin: 3vh auto;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 1s ease-in-out;
+            padding: 20px 0;
+        }
+
+        .container {
+            width: 450px;
+            height: auto;
+            min-height: 500px;
+            max-height: 90vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: visible;
+            backdrop-filter: blur(10px);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #00B4DB, #0083B0);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .login-header::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            top: -50%;
+            left: -50%;
+            transform: rotate(35deg);
+        }
+
+        .logo-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 90%;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        .inline-svg-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+        }
+
+        .login-form {
+            padding: 30px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            color: #444;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: none;
+            background-color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: #0083B0;
+            box-shadow: 0 0 0 3px rgba(0, 131, 176, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .verification-container {
+            background: linear-gradient(135deg, #f3f3f3, #e6e6e6);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .captcha {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #0083B0, #00B4DB);
+            color: white;
+            padding: 8px 15px;
+            display: inline-block;
+            border-radius: 5px;
+            user-select: none;
+        }
+
+        .refresh-btn {
+            background: #0083B0;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .refresh-btn:hover {
+            background: #006687;
+            transform: rotate(180deg);
+        }
+
+        .btn-sign-in {
+            background: linear-gradient(135deg, #00B4DB, #0083B0);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 131, 176, 0.3);
+            margin-top: 15px;
+            font-size: 1.1rem;
+        }
+
+        .btn-sign-in:hover {
+            background: linear-gradient(135deg, #0083B0, #006687);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 131, 176, 0.4);
+        }
+
+        .btn-sign-in:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 131, 176, 0.4);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: #0083B0;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #006687;
+            text-decoration: underline;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .remember-me label {
+            margin-left: 10px;
+            color: #555;
+            font-size: 1rem;
+        }
+
+        /* Custom checkbox */
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            margin-top: 0;
+        }
+
+        .form-check-input:checked {
+            background-color: #0083B0;
+            border-color: #0083B0;
+        }
+
+        /* Announcements Section Styles */
+        .announcements-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .announcements-header {
+            background: linear-gradient(135deg, #00B4DB, #0083B0);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .announcements-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .announcements-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 90%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .announcements-body {
+            padding: 20px;
+            flex-grow: 1;
+            max-height: 450px;
+            overflow: hidden; /* Hide scrollbar */
+            position: relative;
+        }
+
+        .announcement-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 4px solid #0083B0;
+            background-color: rgba(240, 248, 255, 0.7);
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .announcement-date {
+            font-size: 0.9rem;
+            color: #0083B0;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .announcement-text {
+            font-size: 1rem;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .announcements-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                gap: 30px;
+                margin: 30px auto;
+            }
+
+            .container {
+                width: 100%;
+                min-height: 480px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                width: 95%;
+                margin: 20px auto;
+                gap: 30px;
+                padding: 10px;
+            }
+
+            .login-form {
+                padding: 20px;
+            }
+
+            .container {
+                min-height: 450px;
+            }
+        }
+
+        /* Continuous scrolling animation for announcements */
+        .announcements-body.scrolling-wrapper {
+            overflow: hidden;
+        }
+
+        .announcements-body.scrolling-wrapper .scrolling-content {
+            animation: scrollUp 15s linear infinite; /* Adjust duration for speed */
+        }
+
+        @keyframes scrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+    </style>
+    <script>
+        // --- Keep ONLY the CAPTCHA JavaScript ---
+        function generateCaptcha() {
+            let chars = '0123456789';
+            let captcha = '';
+            for (let i = 0; i < 4; i++) {
+                captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            const captchaTextElement = document.getElementById('captcha-text');
+            if (captchaTextElement) {
+                captchaTextElement.innerText = captcha;
+            }
+        }
+
+        function validateCaptcha(event) {
+            let enteredCaptcha = document.getElementById('captcha-input').value;
+            let generatedCaptcha = document.getElementById('captcha-text').innerText;
+            if (enteredCaptcha !== generatedCaptcha) {
+                event.preventDefault(); // Stop form submission
+                alert('Captcha incorrect. Please try again.');
+                generateCaptcha(); // Generate a new captcha
+                document.getElementById('captcha-input').value = ''; // Clear input
+            }
+            // If correct, the form submission proceeds naturally
+        }
+
+        window.onload = function() {
+            generateCaptcha(); // Generate captcha on load
+           
+
+            // Keep input animations if desired
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach((input, index) => {
+                input.style.opacity = '0';
+                input.style.transform = 'translateY(20px)';
+                input.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    input.style.opacity = '1';
+                    input.style.transform = 'translateY(0)';
+                }, 300 + (index * 100));
+            });
+        };
+
+    </script>
+</head>
+<body>
+    <div class="floating-shape shape1"></div>
+    <div class="floating-shape shape2"></div>
+    <div class="floating-shape shape3"></div>
+
+    <div class="main-container">
+        <div class="container"> <div class="login-header">
+                <svg class="inline-svg-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                     <defs><linearGradient id="camera-gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff" /><stop offset="100%" stop-color="#e0e0e0" /></linearGradient></defs><path fill="url(#camera-gradient)" d="M417.5 160H363c-4.667-14.667-8.667-28.333-12-41h-34.5c-3.333 12.667-7.333 26.333-12 41h-248c-14.888 0-27 12.112-27 27v202c0 14.888 12.112 27 27 27h361c14.888 0 27-12.112 27-27V187c0-14.888-12.112-27-27-27zm-175 0h-40.931c4.066-16.42 7.788-31.42 11.166-45h19.766c3.378 13.58 6.867 28.58 9.999 45zm162 186c0 14.888-12.112 27-27 27H134.5c-14.888 0-27-12.112-27-27v-104c0-14.888 12.112-27 27-27H404.5c14.888 0 27 12.112 27 27v104z"/><circle fill="url(#camera-gradient)" cx="269.5" cy="243" r="65"/><path fill="#fff" d="M83.5 168h26v13h-26z" opacity=".7"/>
+                 </svg>
+                 <h1 class="logo-text">IDPVMS</h1>
+                 <p class="subtitle">Integrated Digital Photography Videography Management System</p>
+            </div>
+
+            <div class="login-form">
+                 {% with messages = get_flashed_messages(with_categories=true) %}
+                     {% if messages %}
+                         {% for category, message in messages %}
+                         <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                             {{ message }}
+                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                         </div>
+                         {% endfor %}
+                     {% endif %}
+                 {% endwith %}
+                 <form method="POST" onsubmit="validateCaptcha(event)">
+                   <div class="mb-3">
+                       <label class="form-label">Username</label>
+                       <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required>
+                   </div>
+                   <div class="mb-3">
+                       <label class="form-label">Password</label>
+                       <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                   </div>
+                   <div class="mb-3">
+                       <label class="form-label">Verification</label>
+                       <div class="verification-container">
+                           <span id="captcha-text" class="captcha"></span>
+                           <button type="button" class="refresh-btn" onclick="generateCaptcha()">↻</button>
+                       </div>
+                       <input type="text" id="captcha-input" class="form-control" placeholder="Enter the verification code" required>
+                   </div>
+                   
+                   <button type="submit" class="btn-sign-in w-100">Sign In</button>
+                   <div class="forgot-password">
+                       <a href="#">Forgot Password?</a>
+                   </div>
+                </form>
+            </div>
+        </div> <div class="container announcements-container"> <div class="announcements-header">
+                 <svg class="announcements-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="megaphone-gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fff" /><stop offset="100%" stop-color="#e0e0e0" /></linearGradient></defs><path fill="url(#megaphone-gradient)" d="M480 128c0-35.35-28.65-64-64-64-17.67 0-32 14.33-32 32v224c0 17.67 14.33 32 32 32 35.35 0 64-28.65 64-64V128zM384 336c-17.67 0-32-14.33-32-32V96c0-17.67 14.33-32 32-32s32 14.33 32 32v208c0 17.7-14.3 32-32 32z"/><path fill="url(#megaphone-gradient)" d="M314.3 129.1c-9.1-15.3-26.7-24.1-45-24.1H32C14.33 105 0 119.3 0 137v114c0 17.7 14.33 32 32 32h233.4c18.8 0 36.8-9.7 47-25.5 5.1-8 24.9-40.5 44.5-72.5-19.7-32-41.6-71.8-42.6-55.9zM96 224c-17.67 0-32-14.3-32-32s14.33-32 32-32c17.67 0 32 14.3 32 32s-14.33 32-32 32z"/>
+                 </svg>
+                 <h1 class="announcements-title">Announcements</h1>
+                 <p class="announcements-subtitle">Latest updates and information</p>
+            </div>
+
+            <div class="announcements-body {% if announcements %}scrolling-wrapper{% endif %}">
+                {% if announcements %}
+                    <div class="scrolling-content">
+                        {# Render the announcements first time #}
+                        {% for announcement in announcements %}
+                        <div class="announcement-item">
+                            {# Format the date. Assumes announcement.created_at is datetime obj #}
+                            <div class="announcement-date">{{ announcement.created_at.strftime('%B %d, %Y %I:%M %p') if announcement.created_at else 'No Date' }}</div>
+                            <div class="announcement-text">{{ announcement.message }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {# Display message if no announcements are available #}
+                    <div class="announcement-item">
+                        <div class="announcement-text">No announcements available at this time.</div>
+                    </div>
+                {% endif %}
+            </div>
+            </div> </div> </body>
+</html>

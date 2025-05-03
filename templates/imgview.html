@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimedia Gallery Explorer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        /* Add your existing CSS styles here */
+        body { background-color: #f8f9fa; }
+        .gradient-border { border: 4px solid transparent; border-radius: 10px; background-clip: padding-box, border-box; background-origin: padding-box, border-box; background-image: linear-gradient(white, white), linear-gradient(45deg, #17a2b8, #117a8b); box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); padding: 20px; }
+        .gradient-header { background: linear-gradient(90deg, #17a2b8, #117a8b); border-radius: 10px 10px 0 0; padding: 12px; text-align: center; color: white; font-size: 20px; font-weight: bold; }
+        .form-label { font-weight: bold; }
+        .btn-gradient { background: linear-gradient(45deg, #17a2b8, #117a8b); color: white; border: none; padding: 8px 16px; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); }
+        .btn-gradient:hover { background: linear-gradient(45deg, #117a8b, #17a2b8); }
+        .section-title { font-weight: bold; color: #17a2b8; border-bottom: 2px solid #17a2b8; display: inline-block; padding-bottom: 5px; }
+        .preview-box { border: 2px dashed #ccc; border-radius: 10px; height: 250px; display: flex; align-items: center; justify-content: center; text-align: center; color: gray; overflow: hidden; background-color: #fff; }
+        .preview-box img { max-width: 100%; max-height: 100%; display: none; }
+        .file-list { max-height: 250px; /* Increased height */ overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background-color: white; }
+        .file-list div { padding: 5px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .file-list div:hover { background-color: #f1f1f1; }
+        .file-list div.selected { background-color: #e0f7fa; font-weight: bold;} /* Style for selected file */
+        .glass-box { background: rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 15px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        select.form-select { margin-bottom: 10px; } /* Add some spacing */
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="gradient-border">
+        <div class="gradient-header">Multimedia Gallery Explorer</div>
+
+        <form method="POST" action="{{ url_for('imgview') }}" id="selectionForm" class="mt-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="yearSelect" class="form-label">Year:</label>
+                    <select id="yearSelect" name="year" class="form-select">
+                        <option value="">-- Select Year --</option>
+                        {% for year in years %}
+                        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="monthSelect" class="form-label">Month:</label>
+                    <select id="monthSelect" name="month" class="form-select" disabled>
+                        <option value="">-- Select Month --</option>
+                        {# Options will be populated by JavaScript #}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="pathSelect" class="form-label">Coverage Path:</label>
+                    <select id="pathSelect" name="coverage_path" class="form-select" disabled>
+                        <option value="">-- Select Path --</option>
+                         {# Options populated by JS, or pre-populated on POST #}
+                         {% if selected_year and selected_month and available_paths %}
+                            {% for path in available_paths %}
+                                <option value="{{ path }}" {% if path == selected_path %}selected{% endif %}>{{ path.split('/')[-1] or path.split('\\')[-1] }}</option> {# Display only last part of path #}
+                            {% endfor %}
+                         {% endif %}
+                    </select>
+                </div>
+            </div>
+             <div class="text-center mt-3">
+                 <button type="submit" class="btn btn-gradient">Load Images</button>
+             </div>
+        </form>
+
+        {# Display only if a path was successfully selected and submitted #}
+        {% if selected_path and files is not none %}
+            <hr> {# Separator #}
+            <h4 class="mt-3 text-center">Displaying Images for: <span class="text-info">{{ selected_path }}</span></h4>
+
+            <div class="glass-box mt-3">
+                 {# These are now less relevant client-side, but can be filled #}
+                 <div class="row">
+                     <div class="col">
+                        <label class="form-label">Total Files:</label>
+                        <input type="text" id="totalFiles" class="form-control form-control-sm" value="{{ files|length }}" readonly>
+                     </div>
+                     <div class="col">
+                         <label class="form-label">Current File:</label>
+                         <input type="text" id="currentFile" class="form-control form-control-sm" value="0" readonly>
+                     </div>
+                      <div class="col">
+                        <label class="form-label">File Name:</label>
+                        <input type="text" id="fileName" class="form-control form-control-sm" value="No file selected" readonly>
+                      </div>
+                      {# File size could be added if needed via JS or server-side calculation #}
+                 </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5 class="section-title">Image Collection <span id="imageCount" class="badge bg-primary">{{ files|length }} images</span></h5>
+                    <div class="file-list mt-2" id="fileList">
+                        {% if files %}
+                            {% for file in files %}
+                            <div data-filename="{{ file }}">{{ file }}</div>
+                            {% endfor %}
+                        {% else %}
+                            <div>No image files found in the selected directory.</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="section-title text-end">Image Preview</h5>
+                    <div class="preview-box mt-2">
+                        <img id="previewImage" src="" alt="Image Preview">
+                        <span id="previewText">Select an image from the list to preview</span>
+                    </div>
+                </div>
+            </div> {# End of the row #}
+
+            <div class="text-center mt-4 mb-3">
+                <a href="{{  url_for('gallery_page') }}" id="viewGalleryBtn" class="btn btn-success btn-gradient">
+                     View All Images in Gallery
+                </a>
+            </div>
+            {# The rest of the elif/endif conditions follow #}
+        {% elif request.method == "POST" and not selected_path %}
+            <div class="alert alert-warning mt-3">Please select a valid Year, Month, and Path.</div>
+        {% elif request.method == "POST" and files is not none and not files %}
+            <div class="alert alert-info mt-3">No image files found in the directory: {{ selected_path }}</div>
+        {% elif request.method == "POST" and files is none %}
+            <div class="alert alert-danger mt-3">Could not access or read the directory: {{ selected_path }}</div>
+        {% endif %}
+
+    </div> {# End Gradient Border #}
+</div> {# End Container #}
+
+<script>
+$(document).ready(function(){
+    // Store month options passed from Flask
+    // Ensure month_options_json is properly escaped if it contains special chars,
+    // but usually it's safe for numbers/simple strings.
+    const monthOptionsData = {{ month_options_json | tojson | safe }};
+    const selectedYear = {{ selected_year | tojson }};
+    const selectedMonth = {{ selected_month | tojson }};
+
+    const yearSelect = $('#yearSelect');
+    const monthSelect = $('#monthSelect');
+    const pathSelect = $('#pathSelect');
+
+    function updateMonthOptions() {
+        const year = yearSelect.val();
+        monthSelect.empty().append('<option value="">-- Select Month --</option>').prop('disabled', true);
+        pathSelect.empty().append('<option value="">-- Select Path --</option>').prop('disabled', true); // Reset path too
+
+        if (year && monthOptionsData[year]) {
+            monthOptionsData[year].forEach(month => {
+                // Format month names if desired (e.g., January, February...)
+                const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                monthSelect.append(`<option value="${month}">${monthNames[month]} (${month})</option>`);
+            });
+            monthSelect.prop('disabled', false);
+             // If reloading page after POST, set the previously selected month
+            if (year == selectedYear && selectedMonth) {
+                monthSelect.val(selectedMonth);
+                 // Trigger change to potentially load paths if needed (or rely on server render)
+                 // monthSelect.trigger('change'); // Careful about infinite loops
+            }
+        }
+    }
+
+    function updatePathOptions() {
+        const year = yearSelect.val();
+        const month = monthSelect.val();
+        pathSelect.empty().append('<option value="">-- Loading Paths... --</option>').prop('disabled', true);
+
+        if (year && month) {
+            // Use Fetch API to get paths from the backend
+            fetch(`/get_paths?year=${year}&month=${month}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    pathSelect.empty(); // Clear loading message
+                    if (data.paths && data.paths.length > 0) {
+                        pathSelect.append('<option value="">-- Select Path --</option>');
+                        data.paths.forEach(path => {
+                            // Display only the last part of the path for readability
+                            const displayName = path.split(/[\\/]/).pop() || path;
+                            // Use the full path as the value
+                            pathSelect.append(`<option value="${path}">${displayName}</option>`);
+                        });
+                        pathSelect.prop('disabled', false);
+
+                        // If reloading after POST, set the selected path if it exists in the new list
+                         const previouslySelectedPath = {{ selected_path | tojson | safe }};
+                         if (previouslySelectedPath && data.paths.includes(previouslySelectedPath)) {
+                              pathSelect.val(previouslySelectedPath);
+                         }
+
+                    } else {
+                        pathSelect.append('<option value="">-- No Paths Found --</option>');
+                        pathSelect.prop('disabled', true);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching paths:', error);
+                    pathSelect.empty().append('<option value="">-- Error Loading --</option>').prop('disabled', true);
+                });
+        } else {
+             pathSelect.empty().append('<option value="">-- Select Path --</option>').prop('disabled', true);
+        }
+    }
+
+    // Event Listeners
+    yearSelect.on('change', function() {
+        updateMonthOptions();
+         // Manually trigger month change if a year is selected, to potentially load paths
+         // if month was already pre-selected (e.g. on page reload)
+         if (monthSelect.val()){
+             updatePathOptions(); // Update paths if month is already selected
+         }
+    });
+
+    monthSelect.on('change', function() {
+        updatePathOptions();
+    });
+
+    // Initial population on page load
+    updateMonthOptions(); // Populate months based on initial/selected year
+
+    // If year and month were selected (coming from POST), populate paths
+    if (selectedYear && selectedMonth && !pathSelect.prop('disabled')) {
+         // If paths were rendered by server, great. If not (e.g. GET request with params?)
+         // you might uncomment the below line, but usually server-side render is enough here.
+        // updatePathOptions();
+    } else if (selectedYear && selectedMonth) {
+        // Paths might have been pre-filled by Jinja if available_paths was passed
+        // Check if options exist, and enable if so.
+        if ($('#pathSelect option').length > 1) { // More than just "-- Select Path --"
+             pathSelect.prop('disabled', false);
+        } else {
+             // If no paths were rendered by server, fetch them now
+             updatePathOptions();
+        }
+    }
+
+
+    // --- Image Preview Logic ---
+    // This now triggers on clicks within the server-rendered file list
+    const selectedDirectory = {{ selected_path | tojson | safe }}; // Get the selected path from Flask
+
+    $('#fileList div').on('click', function() {
+        const filename = $(this).data('filename'); // Get filename from data attribute
+
+        if (filename && selectedDirectory) {
+             // Deselect previous
+             $('#fileList div.selected').removeClass('selected');
+             // Select current
+             $(this).addClass('selected');
+
+
+            // Construct the URL for the image preview endpoint
+            // Encode filename in case it contains special characters
+            const imageUrl = `/image_preview/${encodeURIComponent(filename)}?directory=${encodeURIComponent(selectedDirectory)}`;
+
+            $('#previewImage').attr('src', imageUrl).show();
+            $('#previewText').hide();
+            $('#fileName').val(filename);
+
+            // Update current file number (find index in the list)
+            const index = $(this).index();
+             $('#currentFile').val(index + 1);
+
+            // Note: File size isn't directly available here without another request or passing it initially.
+             $('#fileSize').val("N/A"); // Or fetch if needed
+
+        } else {
+             console.error("Missing filename or selected directory for preview.");
+             // Optionally clear preview
+             $('#previewImage').attr('src', '').hide();
+             $('#previewText').show().text("Error loading preview");
+             $('#fileName').val("Error");
+             $('#currentFile').val("0");
+             $('#fileSize').val("N/A");
+        }
+    });
+});
+
+</script>
+</body>
+</html>

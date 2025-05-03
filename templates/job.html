@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Management</title>
+    
+    <!-- Bootstrap & jQuery -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f4f7fc;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+            max-width: 90%;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-weight: bold;
+            color: #333;
+        }
+        .btn-primary {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .table {
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: #17a2b8;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #ddd;
+        }
+        .table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 12px;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f2f6fc;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #dde8fc;
+        }
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+        .status-deleted {
+            color: red;
+            font-weight: bold;
+        }
+        .action-icons img {
+            width: 24px;
+            height: 24px;
+            margin: 5px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .btn-icon {
+            border: none;
+            background: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-info px-3">
+        <a class="navbar-brand fw-bold h4 text-white">
+            INTEGRATED DIGITAL PHOTOGRAPHY & VIDEOGRAPHY MANAGEMENT SYSTEM
+        </a>
+        <div class="ms-auto">
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+        </div>
+    </nav>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="container mt-4">
+        <h2 class="text-center mb-4">📋 Job Management</h2>
+
+        <!-- Search & Add New Job -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <form method="GET" action="{{ url_for('job') }}" class="d-flex">
+                    <input type="text" name="search" class="form-control" placeholder="🔍 Search Jobs..."
+                        value="{{ search_query or '' }}">
+                    <button type="submit" class="btn btn-primary ms-2">Search</button>
+                </form>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="{{ url_for('add_job') }}" class="btn btn-primary">
+                    + Add New Job
+                </a>
+            </div>
+        </div>
+        
+
+        <!-- Job Table -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Job Code</th>
+                        <th>Event Title</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Requester</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if jobs.items %}
+                        {% for job in jobs.items %}
+                            <tr>
+                                <td>{{ job.jobcode }}</td>
+                                <td>{{ job.event_title }}</td>
+                                <td>{{ job.event_dt_fm.strftime('%d-%b-%Y') if job.event_dt_fm else '-' }}</td>
+                                <td>{{ job.event_dt_to.strftime('%d-%b-%Y') if job.event_dt_to else '-' }}</td>
+                                <td>{{ job.requester_name }}</td>
+                                <td class="{{ 'text-danger fw-bold' if job.is_deleted else 'text-success fw-bold' }}">
+                                    {{ "Deleted" if job.is_deleted else "Active" }}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        {% if not job.is_deleted %}
+                                            <a href="{{ url_for('update_job', photoid=job.photoid) }}" class="btn btn-sm btn-warning" title="Edit">
+                                                ✏️
+                                            </a>
+                                            <form method="POST" action="{{ url_for('delete_job', photoid=job.photoid) }}" class="d-inline delete-form">
+                                                <button type="submit" class="btn btn-sm btn-danger delete-btn" title="Delete">🗑️</button>
+                                            </form>
+                                        {% endif %}
+                                        <a href="{{ url_for('view_job', photoid=job.photoid) }}" class="btn btn-sm btn-info" title="View">👁️</a>
+                                        <a href="{{ url_for('mail_job', photoid=job.photoid) }}" class="btn btn-sm btn-secondary" title="Mail">✉️</a>
+                                        <a href="{{ url_for('print_job', photoid=job.photoid) }}" target="_blank" class="btn btn-sm btn-dark" title="Print">📄</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No jobs found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                Showing {{ jobs.first }} to {{ jobs.last }} of {{ jobs.total }} entries
+            </div>
+            <nav>
+                <ul class="pagination">
+                    {% if jobs.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('job', page=jobs.prev_num) }}">⏪ Prev</a>
+                        </li>
+                    {% endif %}
+                    {% for page_num in jobs.iter_pages() %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == jobs.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('job', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if jobs.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('job', page=jobs.next_num) }}">Next ⏩</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        document.querySelectorAll(".delete-btn").forEach(button => {
+            button.addEventListener("click", function(event) {
+                if (!confirm("Are you sure you want to delete this job?")) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        document.getElementById("search").addEventListener("input", function() {
+            const query = this.value.toLowerCase();
+            document.querySelectorAll("tbody tr").forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
+            });
+        });
+    </script>
+</body>
+
+</html>

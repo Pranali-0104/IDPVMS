@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Details - {{ job.jobcode }}</title> {# Use jobcode or title #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        .card {
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card-title {
+            font-weight: bold;
+            color: #0d6efd; /* Primary color */
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .card-title i {
+             margin-right: 8px;
+             color: #6c757d; /* Secondary text color for icons */
+        }
+        .card-text {
+            color: #343a40; /* Darker text */
+            margin-bottom: 0; /* Remove default paragraph margin */
+        }
+        .card-body {
+             padding: 1rem 1.25rem;
+        }
+
+        /* Calendar Styles (adapted from schedule.html) */
+        .calendar-section {
+             margin-top: 30px;
+             padding-top: 20px;
+             border-top: 1px solid #dee2e6;
+        }
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .calendar-header h4 {
+             color: #333;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #dee2e6;
+            border: 1px solid #dee2e6;
+            font-size: 0.85rem; /* Slightly smaller for context view */
+        }
+        .calendar-day-header {
+            background-color: #e9ecef;
+            text-align: center;
+            padding: 5px 0;
+            font-weight: bold;
+            color: #495057;
+        }
+        .calendar-day {
+            background-color: #fff;
+            min-height: 100px; /* Adjust height */
+            padding: 5px;
+            position: relative;
+            overflow-y: auto;
+        }
+        .calendar-day.padding { background-color: #f8f9fa; color: #adb5bd; }
+        .calendar-day.today { background-color: #fff3cd; }
+        .day-number {
+            font-size: 0.8em;
+            font-weight: bold;
+            text-align: right;
+            color: #6c757d;
+            margin-bottom: 3px;
+            display: block;
+        }
+        .today .day-number { color: #856404; }
+
+        .assignment {
+            font-size: 0.75em;
+            padding: 2px 4px;
+            margin-bottom: 2px;
+            border-radius: 3px;
+            color: #212529;
+            border: 1px solid rgba(0,0,0,0.1);
+            word-wrap: break-word;
+            line-height: 1.3;
+        }
+        .assignment strong { display: block; margin-bottom: 1px; }
+
+        /* Highlight for the *current* job being viewed */
+        .assignment.current-job {
+             border: 2px solid #0d6efd; /* Primary color border */
+             font-weight: bold;
+             box-shadow: 0 0 5px rgba(13, 110, 253, 0.4);
+        }
+        /* Add special highlight for the days this job spans */
+        .calendar-day.job-active-day {
+             /* Example: subtle background or border */
+             /* background-color: #e7f1ff; */
+             outline: 2px solid #7aaeff; /* Outline to avoid messing with bg */
+             outline-offset: -2px;
+             z-index: 1; /* Ensure outline is visible */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center mb-4">Job Details: {{ job.event_title }}</h2>
+
+        <div class="row">
+            {# --- Column 1: Job Details --- #}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-id-badge"></i> Photo ID</h5>
+                        <p class="card-text">{{ job.photoid or 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-barcode"></i> Event Code</h5>
+                        <p class="card-text">{{ job.eventcode or 'N/A' }}</p>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-briefcase"></i> Job Code</h5>
+                        <p class="card-text">{{ job.jobcode or 'N/A' }}</p>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-scroll"></i> Request Type</h5>
+                        <p class="card-text">{{ job.r_type or 'N/A' }}</p>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-heading"></i> Event Title</h5>
+                        <p class="card-text">{{ job.event_title or 'N/A' }}</p>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-map-marker-alt"></i> Event Venue</h5>
+                        <p class="card-text">{{ job.event_venue or 'N/A' }}</p>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-calendar-check"></i> Event Date From</h5>
+                        {# Handle missing dates gracefully #}
+                        <p class="card-text">{{ job.event_dt_fm.strftime('%Y-%m-%d') if job.event_dt_fm else 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-calendar-alt"></i> Event Date To</h5>
+                        <p class="card-text">{{ job.event_dt_to.strftime('%Y-%m-%d') if job.event_dt_to else 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-clock"></i> Event Time From</h5>
+                        <p class="card-text">{{ job.event_ti_fm.strftime('%H:%M') if job.event_ti_fm else 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-history"></i> Event Time To</h5>
+                        <p class="card-text">{{ job.event_ti_to.strftime('%H:%M') if job.event_ti_to else 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {# --- Column 2: Requester & Photographer Details --- #}
+            <div class="col-md-6">
+                 <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-camera-retro"></i> Photographer(s)</h5>
+                        <p class="card-text">{{ job.photographer_selection or 'N/A' }}</p>
+                    </div>
+                </div>
+                 <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-user-tie"></i> Requester Name</h5>
+                        <p class="card-text">{{ job.requester_name or 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-phone"></i> Requester Phone</h5>
+                        <p class="card-text">{{ job.request_phone or 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-envelope"></i> Requester Email</h5>
+                        <p class="card-text">{{ job.request_email or 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-building"></i> Requester Division</h5>
+                        <p class="card-text">{{ job.request_div or 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa-solid fa-sticky-note"></i> Remarks</h5>
+                        <p class="card-text" style="white-space: pre-wrap;">{{ job.remarks or 'None' }}</p> {# Preserve whitespace #}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# --- Calendar Context Section --- #}
+        {% if calendar_data %}
+        <div class="calendar-section">
+            <div class="calendar-header">
+                 <h4>Schedule Context ({{ calendar_data.month_name }} {{ calendar_data.year }})</h4>
+            </div>
+            <div class="calendar-grid">
+                {# Day Headers #}
+                {% for day_name in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] %}
+                <div class="calendar-day-header">{{ day_name }}</div>
+                {% endfor %}
+
+                {# Calendar Days #}
+                {% for week in calendar_data.month_calendar %}
+                    {% for day in week %}
+                        {% if day == 0 %}
+                            <div class="calendar-day padding"></div>
+                        {% else %}
+                            {% set day_str = "%d-%02d-%02d"|format(calendar_data.year, calendar_data.month_num, day) %}
+                            {% set current_day_date = day_str|replace('-', '')|int %} {# For comparison #}
+                            {% set job_start_date = job.event_dt_fm.strftime('%Y%m%d')|int if job.event_dt_fm else 0 %}
+                            {% set job_end_date = job.event_dt_to.strftime('%Y%m%d')|int if job.event_dt_to else job_start_date %} {# Handle null end date #}
+                            {% set is_job_active_day = (job_start_date <= current_day_date <= job_end_date) %}
+                            {% set is_today = (day_str == calendar_data.today_str) %}
+
+                            <div class="calendar-day {{ 'today' if is_today else '' }} {{ 'job-active-day' if is_job_active_day else '' }}">
+                                <span class="day-number">{{ day }}</span>
+                                {% if day_str in calendar_data.assignments %}
+                                    {% for assignment in calendar_data.assignments[day_str] %}
+                                        {# Check if this assignment is the job we are currently viewing #}
+                                        {% set is_current_job_assignment = (assignment.photoid == job.photoid) %}
+                                        <div class="assignment {{ 'current-job' if is_current_job_assignment else '' }}"
+                                             style="background-color: {{ assignment.color }};">
+                                            <strong>{{ assignment.photographer }}</strong>
+                                            <small>{{ assignment.jobcode }}</small><br>
+                                            {# Optionally show title for other jobs only #}
+                                            {% if not is_current_job_assignment %}
+                                                <small>{{ assignment.title }}</small>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+             {% if calendar_data.photographer_colors %}
+             <div class="legend mt-3"> {# Added margin top #}
+                  <h6>Photographer Colors:</h6>
+                  {% for name, color in calendar_data.photographer_colors.items() %}
+                      <div class="legend-item d-inline-block me-3 mb-1"> {# Bootstrap spacing #}
+                          <span class="legend-color-box d-inline-block me-1" style="background-color: {{ color }}; width: 12px; height: 12px; vertical-align: middle; border: 1px solid #ccc;"></span>
+                          <small>{{ name }}</small>
+                      </div>
+                  {% endfor %}
+             </div>
+             {% endif %}
+        </div>
+        {% endif %} {# End calendar_data check #}
+
+
+        <div class="text-center mt-4 mb-4"> {# Added margin bottom #}
+            {# Link back to the main list or dashboard #}
+            <a href="{{ url_for('index') }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to List</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .welcome-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #17a2b8;
+            margin-left: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        /* Custom Dropdown Styling */
+        .custom-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            background-color: #17a2b8; /* Bootstrap 'info' color */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }   
+
+        .dropdown-toggle:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: #17a2b8;
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 1;
+            min-width: 160px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .custom-dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+            border-radius: 4px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #138496;
+        }
+        
+        /* Gallery Styling */
+        .gallery-container {
+            margin: 40px auto;
+            max-width: 1200px;
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            flex-grow: 1;
+        }
+        
+        .gallery-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #17a2b8;
+            font-weight: bold;
+            font-size: 28px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .gallery-title:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: #17a2b8;
+            border-radius: 2px;
+        }
+        
+        .image-carousel {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .carousel-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+        
+        .image-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .image-carousel:hover .image-caption {
+            opacity: 1;
+        }
+        
+        .nav-buttons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .image-carousel:hover .nav-buttons {
+            opacity: 1;
+        }
+        
+        .nav-btn {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            color: #17a2b8;
+            z-index: 2;
+        }
+        
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.1);
+        }
+        
+        .nav-btn:focus {
+            outline: none;
+        }
+        
+        .image-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 2;
+        }
+        
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        .indicator-dot.active {
+            background-color: #17a2b8;
+            transform: scale(1.2);
+        }
+        
+        .navbar-brand {
+            font-size: 1.2rem !important;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background-color: #0069d9;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Footer Styling */
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 30px 0;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-logo {
+            flex: 1;
+            min-width: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-logo h3 {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+        
+        .footer-links {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links h4 {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+        
+        .footer-links a {
+            color: #f8f9fa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: #17a2b8;
+            text-decoration: underline;
+        }
+        
+        .footer-contact {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .footer-contact h4 {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+        
+        .contact-info {
+            margin-bottom: 8px;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-light bg-info">
+        <div class="container-fluid">
+            <span class="navbar-brand fw-bold h1">
+                INTEGRATED DIGITAL PHOTOGRAPHY VIDEOGRAPHY MANAGEMENT SYSTEM
+            </span>
+            <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Welcome Heading -->
+    <h3 class="welcome-text mt-3">Welcome {{ username }}!</h3>
+    
+    <!-- Second Navbar with Custom Dropdowns -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-info">
+        <div class="container-fluid d-flex justify-content-around">
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Request Processing</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url_for('job') }}">Inputting</a>
+                    <a class="dropdown-item" href="#">Modification</a>
+                </div>
+            </div>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Job Assignment(post prodn)</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{  url_for('key_entry') }}">Photography/Videography</a>
+                    <a class="dropdown-item" href="{{  url_for('imgview') }}">Modification</a>
+                    <a class="dropdown-item" href="{{  url_for('event_codes') }}">Event Codes</a>
+                </div>
+            </div>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Printing</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{  url_for('photographer_schedule') }}">Photographer Schedule</a>
+                    <a class="dropdown-item" href="{{url_for('gallery_page')}}">Modification</a>
+                </div>
+            </div>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Production Process</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Job Status</a>
+                    
+                </div>
+            </div>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Enquiry</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Job Assignment</a>
+                    <a class="dropdown-item" href="#">Progress</a>
+                </div>
+            </div>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Re-Prints photo</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Job Status</a>
+                    <a class="dropdown-item" href="#">Modification</a>
+                </div>
+            </div>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Leaves</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Job Status</a>
+                    <a class="dropdown-item" href="#">Modification</a>
+                </div>
+            </div>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Stock</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Job Status</a>
+                    <a class="dropdown-item" href="#">Modification</a>
+                </div>
+            </div>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle">Password</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Job Status</a>
+                    <a class="dropdown-item" href="#">Modification</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Gallery Section -->
+    <div class="gallery-container">
+        <h2 class="gallery-title">Featured Photography</h2>
+        
+        <div class="image-carousel">
+            <img src="static/images/card1.png" class="carousel-image" id="current-image" alt="Current Image">
+            
+            <div class="image-caption">
+                <h3 id="image-title">Ethereal Sunset</h3>
+                <p id="image-description">A mesmerizing scene of a lone tree glowing under a fiery sunset, creating a surreal and dreamlike atmosphere.</p>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn prev-btn">&lt;</button>
+                <button class="nav-btn next-btn">&gt;</button>
+            </div>
+            
+            <div class="image-indicator">
+                <div class="indicator-dot active" data-index="0"></div>
+                <div class="indicator-dot" data-index="1"></div>
+                <div class="indicator-dot" data-index="2"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="text-center bg-dark text-white py-3">
+        &copy; 2025 Integrated Digital Photography Videography Management System. All Rights Reserved.
+    </footer>
+
+    <!-- JavaScript for the image carousel functionality -->
+    <script>
+        $(document).ready(function(){
+            // Image data
+            const images = [
+                {
+                    src: "static/images/card1.png",
+                    title: "Ethereal Sunset",
+                    description: "A mesmerizing scene of a lone tree glowing under a fiery sunset, creating a surreal and dreamlike atmosphere."
+                },
+                {
+                    src: "static/images/card2.png",
+                    title: "Moonlit Serenity",
+                    description: "A peaceful wooden bridge leading into a calm lake, bathed in the soft glow of the moonlight, evoking tranquility and reflection."
+                },
+                {
+                    src: "static/images/card3.png",
+                    title: "Majestic Peaks",
+                    description: "A breathtaking view of towering snow-capped mountains, surrounded by rugged terrain, showcasing the grandeur of nature."
+                }
+            ];
+            
+            let currentIndex = 0;
+            
+            // Function to update image and caption
+            function updateImage(index) {
+                // Fade out current image
+                $("#current-image").fadeOut(300, function() {
+                    // Update image source
+                    $(this).attr("src", images[index].src);
+                    // Fade in new image
+                    $(this).fadeIn(300);
+                });
+                
+                // Update caption
+                $("#image-title").text(images[index].title);
+                $("#image-description").text(images[index].description);
+                
+                // Update indicator dots
+                $(".indicator-dot").removeClass("active");
+                $(`.indicator-dot[data-index="${index}"]`).addClass("active");
+                
+                // Update current index
+                currentIndex = index;
+            }
+            
+            // Previous button click
+            $(".prev-btn").click(function() {
+                let newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = images.length - 1;
+                updateImage(newIndex);
+            });
+            
+            // Next button click
+            $(".next-btn").click(function() {
+                let newIndex = (currentIndex + 1) % images.length;
+                updateImage(newIndex);
+            });
+            
+            // Indicator dot click
+            $(".indicator-dot").click(function() {
+                const index = $(this).data("index");
+                updateImage(index);
+            });
+            
+            // Auto-rotate images every 5 seconds
+            setInterval(function() {
+                let newIndex = (currentIndex + 1) % images.length;
+                updateImage(newIndex);
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

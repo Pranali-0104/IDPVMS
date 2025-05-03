@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Photography/Videography Request</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<style>
+        body {
+            background-color: #e3f2fd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            background: #bbdefb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #01579b;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3 class="text-center mb-4"><i class="fas fa-camera"></i> create Photography/Videography Request</h3>
+        <form action="{{ url_for('add_job') }}" method="POST">
+
+            
+            <!-- Section 1: Event Information -->
+            <div class="section">
+                <div class="section-title">Event Information</div>
+                <div class="form-group">
+                    <label>Event Code</label>
+                    <select class="form-control" name="eventcode" required>
+                        <option value="">-- Select Event Code --</option>
+                        {% for event in event_codes %}
+                        <option value="{{ event.code }}">{{ event.code }} - {{ event.description }}</option>
+
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Event Title</label>
+                    
+                    <input type="text" class="form-control" name="event_title" value="{{ job.event_title if job else '' }}" required>
+
+                </div>
+                <div class="form-group">
+                    <label>Event Venue</label>
+                    <select class="form-control" name="event_venue" required>
+                        <option value="">-- Select Venue --</option>
+                        {% for venue in event_venues %}
+                        <option value="{{ venue.name }}" {% if job and job.event_venue == venue.name %}selected{% endif %}>{{ venue.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                </div>
+            </div>
+            
+            <!-- Section 2: Requirement & Scheduling -->
+<div class="section">
+    <div class="section-title">Requirement & Scheduling</div>
+    <div class="form-group">
+        <label><strong>Requirement Type</strong></label><br>
+        <input type="radio" name="r_type" value="Photography" {% if job.r_type == 'Photography' %}checked{% endif %} required> Photography
+        <input type="radio" name="r_type" value="Videography" {% if job.r_type == 'Videography' %}checked{% endif %}> Videography
+        <input type="radio" name="r_type" value="Both" {% if job.r_type == 'Both' %}checked{% endif %}> Both
+    </div>
+
+    <div class="form-group">
+        <label><strong>Select Photographer(s)</strong></label>
+        <select id="photographerDropdown" class="form-control">
+            <option value="">-- Select Photographer --</option>
+            {% for photographer in photographers %}
+            <option value="{{ photographer.name }}">{{ photographer.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Display Selected Photographers -->
+    <div id="selectedPhotographers" class="mt-2">
+        <label><strong>Selected Photographers:</strong></label>
+        <ul id="photographerList"></ul>
+    </div>
+    <!-- Hidden input to store selections -->
+    <input type="hidden" name="photographer_selection" id="photographerSelectionInput">
+
+    <!-- Move Time Selection Above Date Selection -->
+    <div class="row mt-2">
+        <div class="col">
+            <label>Time From</label>
+            <input type="time" class="form-control" name="event_ti_fm"
+                value="{{ job.event_ti_fm.strftime('%H:%M') if job and job.event_ti_fm else '' }}" required>
+        </div>
+        <div class="col">
+            <label>Time To</label>
+            <input type="time" class="form-control" name="event_ti_to"
+                value="{{ job.event_ti_to.strftime('%H:%M') if job and job.event_ti_to else '' }}" required>
+        </div>
+    </div>
+
+    <!-- Date Selection -->
+<div class="row mt-2">
+    <div class="col">
+        <label>Event Date From</label>
+        <input type="date" class="form-control" id="event_dt_fm" name="event_dt_fm"
+            value="{{ job.event_dt_fm.strftime('%Y-%m-%d') if job and job.event_dt_fm else '' }}" required>
+    </div>
+    <div class="col">
+        <label>Event Date To</label>
+        <input type="date" class="form-control" id="event_dt_to" name="event_dt_to"
+            value="{{ job.event_dt_to.strftime('%Y-%m-%d') if job and job.event_dt_to else '' }}" required>
+    </div>
+</div>
+
+<!-- Section for Dynamic Photographer Selection Per Day -->
+<div id="dayWisePhotographers" class="mt-3"></div>
+</div>
+            <!-- Section 3: Requester Details -->
+            <div class="section">
+                <div class="section-title">Requester Details</div>
+                <div class="form-group">
+                    <label>Requester Name</label>
+                    <input type="text" class="form-control" name="requester_name" value="{{ job.requester_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Requester Phone</label>
+                    <input type="tel" class="form-control" name="request_phone" pattern="[0-9]{10,}" placeholder="Enter phone number" value="{{ job.request_phone }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Requester Email</label>
+                    <input type="email" class="form-control" name="request_email" value="{{ job.request_email }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Requester Division</label>
+                    <input type="text" class="form-control" name="request_div" value="{{ job.request_div }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <textarea class="form-control" name="remarks" rows="3">{{ job.remarks }}</textarea>
+                </div>
+            </div>
+            
+            <!-- Submission -->
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Submit Request</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+<script>
+     document.addEventListener("DOMContentLoaded", function () {
+        const dropdown = document.getElementById("photographerDropdown");
+        const list = document.getElementById("photographerList");
+        const hiddenInput = document.getElementById("photographerSelectionInput");
+        const eventFrom = document.getElementById("event_dt_fm");
+        const eventTo = document.getElementById("event_dt_to");
+        const dayWiseContainer = document.getElementById("dayWisePhotographers");
+
+        let selectedPhotographers = [];
+
+        dropdown.addEventListener("change", function () {
+            const selectedValue = dropdown.value;
+            if (selectedValue && !selectedPhotographers.includes(selectedValue)) {
+                selectedPhotographers.push(selectedValue);
+                updateList();
+            }
+        });
+
+        function updateList() {
+            list.innerHTML = "";
+            selectedPhotographers.forEach(name => {
+                const li = document.createElement("li");
+                li.innerHTML = `${name} <button type="button" class="btn btn-sm btn-danger ml-2" onclick="removePhotographer('${name}')">X</button>`;
+                list.appendChild(li);
+            });
+            hiddenInput.value = selectedPhotographers.join(", ");
+            generateDayWiseSelection();
+        }
+
+        window.removePhotographer = function (name) {
+            selectedPhotographers = selectedPhotographers.filter(n => n !== name);
+            updateList();
+        };
+
+        function generateDayWiseSelection() {
+            dayWiseContainer.innerHTML = "";
+            const startDate = new Date(eventFrom.value);
+            const endDate = new Date(eventTo.value);
+
+            if (isNaN(startDate) || isNaN(endDate) || selectedPhotographers.length === 0) return;
+
+            if (endDate > startDate) {
+                let html = "<label><strong>Assign Photographers Per Day</strong></label>";
+
+                for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                    const dateStr = d.toISOString().split("T")[0];
+
+                    html += `<div class="mt-2">
+                                <label>${dateStr}</label>
+                                <div class="form-check">`;
+
+                    selectedPhotographers.forEach(photographer => {
+                        html += `<input class="form-check-input" type="checkbox" name="day_photographers_${dateStr}" value="${photographer}" id="${photographer}_${dateStr}">
+                                <label class="form-check-label" for="${photographer}_${dateStr}">${photographer}</label><br>`;
+                    });
+
+                    html += `</div></div>`;
+                }
+
+                dayWiseContainer.innerHTML = html;
+            }
+        }
+
+        eventFrom.addEventListener("change", generateDayWiseSelection);
+        eventTo.addEventListener("change", generateDayWiseSelection);
+    });
+</script>   
+</body>
+</html>

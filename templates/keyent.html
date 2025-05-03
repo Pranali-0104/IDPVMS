@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Entry Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #e3f2fd;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            background: #bbdefb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        #suggestions {
+            position: absolute;
+            width: calc(100% - 2px); /* Match input width */
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background: white;
+            z-index: 1000;
+            display: none;
+            left: 0;  /* Ensure it aligns with input */
+            top: 100%; /* Position it directly below */
+        }
+        .keyword-suggestion {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+            background: white;
+        }
+        .keyword-suggestion:hover {
+            background: #e9ecef;
+        }
+        .keyword-badge {
+            display: inline-block;
+            background: #0d6efd;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .keyword-badge .remove-keyword {
+            margin-left: 5px;
+            cursor: pointer;
+            color: #ffdddd;
+        }
+        .keyword-container {
+            position: relative;
+        }
+        #keywordInput {
+             flex-grow: 1;
+             min-width: 0;
+             border: 1px solid #ced4da;
+             padding: .375rem .75rem;
+             border-radius: .25rem;
+        }
+        #addKeywordBtn {
+             margin-left: -1px;
+        }
+        .keyword-input-wrapper {
+             position: relative;
+             flex-grow: 1;
+        }
+        /* Style for upload progress/feedback */
+        #uploadStatus {
+            margin-top: 10px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center text-primary">Media & Keyword Entry</h2>
+
+        <form id="keywordForm">
+            <div class="section">
+                <h5 class="text-dark">Select Event Date</h5>
+                <div class="mb-3">
+                    <label for="eventDate" class="form-label">Event Date:</label>
+                    <input type="date" id="eventDate" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="section">
+                <h5 class="text-dark">Event Information</h5>
+                <div class="mb-3">
+                    <label for="eventSelect" class="form-label">Event Code:</label>
+                    <select id="eventSelect" class="form-select" required>
+                        <option value="">-- Select Event Code --</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="eventTitle" class="form-label">Event Title:</label>
+                    <input type="text" id="eventTitle" class="form-control" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="photographerName" class="form-label">Photographer Name:</label>
+                    <input type="text" id="photographerName" class="form-control" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="jobCode" class="form-label">Job Code:</label>
+                    <input type="text" id="jobCode" class="form-control" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="coverageType" class="form-label">Type of Coverage:</label>
+                    <input type="text" id="coverageType" class="form-control" readonly>
+                </div>
+            </div>
+
+            <div class="section">
+                <h5 class="text-dark">Enter Keywords</h5>
+                <div class="input-group mb-3">
+                    <div class="keyword-input-wrapper">
+                        <input type="text" id="keywordInput" class="form-control" placeholder="Enter Keywords">
+                        <div id="suggestions"></div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="addKeywordBtn">Add</button>
+                </div>
+                <div id="selectedKeywords" class="mt-2"></div>
+            </div>
+
+
+            <div class="section">
+                <h5 class="text-dark">Select Source & Upload Files</h5> <div class="mb-3">
+                    <label for="sourceFolder" class="form-label">Source Folder:</label>
+                    <div class="input-group">
+                        <input type="text" id="sourceFolder" class="form-control" placeholder="Click 'Browse' to select folder" readonly required>
+                        <button type="button" class="btn btn-secondary" id="selectFolderBtn">Browse</button>
+                    </div>
+                    <input type="file" id="fileInput" webkitdirectory multiple style="display:none;">
+                </div>
+
+                <div class="mb-3">
+                    <label for="destinationFolder" class="form-label">Destination Folder:</label>
+                    <input type="text" id="destinationFolder" class="form-control" readonly>
+                </div>
+
+                <button type="button" class="btn btn-success w-100 mb-2" id="copyFilesBtn">Upload Files</button> <div id="uploadStatus"></div>
+
+                <button type="submit" class="btn btn-primary w-100">Submit Keywords</button>
+            </div>
+        </form>
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // --- Existing Keyword and Event Logic ---
+            const inputField = document.getElementById("keywordInput");
+            const suggestionsDiv = document.getElementById("suggestions");
+            const selectedKeywordsDiv = document.getElementById("selectedKeywords");
+            let selectedKeywords = [];
+            let eventDetails = {};
+
+            // ...(Keep all the keyword suggestion, adding, event fetching, populating logic exactly as before)...
+             // Fetch keyword suggestions when typing
+            inputField.addEventListener("input", function () {
+                const query = inputField.value.trim();
+
+                if (query.length === 0) {
+                    suggestionsDiv.innerHTML = "";
+                    suggestionsDiv.style.display = "none";
+                    return;
+                }
+
+                fetch("/suggest_keywords", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsDiv.innerHTML = "";
+                    if (data.length > 0) {
+                        data.forEach(keyword => {
+                            const suggestionItem = document.createElement("div");
+                            suggestionItem.textContent = keyword;
+                            suggestionItem.classList.add("keyword-suggestion");
+
+                            suggestionItem.addEventListener("click", function () {
+                                addKeyword(keyword);
+                            });
+
+                            suggestionsDiv.appendChild(suggestionItem);
+                        });
+                        suggestionsDiv.style.display = "block";
+                    } else {
+                        suggestionsDiv.style.display = "none";
+                    }
+                })
+                .catch(error => console.error("Error fetching keyword suggestions:", error));
+            });
+
+            // Add keyword to selected list
+            function addKeyword(keyword) {
+                if (!selectedKeywords.includes(keyword)) {
+                    selectedKeywords.push(keyword);
+
+                    const badge = document.createElement("span");
+                    badge.classList.add("keyword-badge");
+                    badge.innerHTML = `${keyword} <span class="remove-keyword" data-keyword="${keyword}">×</span>`;
+
+                    badge.querySelector(".remove-keyword").addEventListener("click", function () {
+                        selectedKeywords = selectedKeywords.filter(kw => kw !== keyword);
+                        badge.remove();
+                    });
+
+                    selectedKeywordsDiv.appendChild(badge);
+                }
+
+                inputField.value = "";
+                suggestionsDiv.style.display = "none";
+                inputField.focus(); // Keep focus on input after adding
+            }
+
+            // Add keyword on button click
+            document.getElementById("addKeywordBtn").addEventListener("click", function () {
+                const enteredKeyword = inputField.value.trim();
+                if (enteredKeyword) { // Allow adding even if not in suggestions
+                     addKeyword(enteredKeyword);
+                }
+            });
+
+            // Allow adding keyword on Enter key press
+            inputField.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevent form submission
+                    const enteredKeyword = inputField.value.trim();
+                     if (enteredKeyword) {
+                         addKeyword(enteredKeyword);
+                     }
+                }
+            });
+
+
+            // Hide dropdown when clicking outside
+            document.addEventListener("click", function (event) {
+                // Check if the click is outside the input wrapper AND the suggestions div
+                 const keywordInputWrapper = document.querySelector(".keyword-input-wrapper");
+                 if (keywordInputWrapper && !keywordInputWrapper.contains(event.target) && !suggestionsDiv.contains(event.target)) {
+                     suggestionsDiv.style.display = "none";
+                 }
+            });
+
+            // Fetch events when the date is selected
+            document.getElementById("eventDate").addEventListener("change", function () {
+                let selectedDate = this.value;
+                if (!selectedDate) {
+                    // Clear subsequent fields if date is cleared
+                    document.getElementById("eventSelect").innerHTML = '<option value="">-- Select Event Code --</option>';
+                    populateEventDetails({}); // Clear details
+                    document.getElementById("destinationFolder").value = '';
+                    return;
+                }
+                fetch("/get_events", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ event_date: selectedDate })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let eventSelect = document.getElementById("eventSelect");
+                    eventSelect.innerHTML = '<option value="">-- Select Event Code --</option>'; // Reset
+                    populateEventDetails({}); // Clear details on new date selection
+                    document.getElementById("destinationFolder").value = ''; // Clear destination
+
+                    if (data && data.length > 0) {
+                        data.forEach(event => {
+                            let option = document.createElement("option");
+                            option.value = event.photoid;
+                            // Store data attributes directly on the option for easy access
+                            option.dataset.jobcode = event.jobcode;
+                            option.dataset.title = event.event_title;
+                            option.dataset.photographerName = event.photographer_name; // Assuming these are available
+                            option.dataset.coverageType = event.type_of_coverage; // Assuming these are available
+                            option.textContent = `${event.jobcode} - ${event.event_title}`;
+                            eventSelect.appendChild(option);
+                        });
+                    } else {
+                        alert("No events found for this date.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching events:", error);
+                    alert("Error fetching events. Please try again.");
+                });
+            });
+
+            // Fetch event details when an event is selected
+            document.getElementById("eventSelect").addEventListener("change", function () {
+                let selectedOption = this.options[this.selectedIndex];
+                if (!selectedOption.value) {
+                    populateEventDetails({}); // Clear details if default option selected
+                    document.getElementById("destinationFolder").value = '';
+                    return;
+                }
+
+                // Use data attributes stored on the option if available (faster)
+                const eventData = {
+                    jobcode: selectedOption.dataset.jobcode,
+                    title: selectedOption.dataset.title,
+                    photographer_name: selectedOption.dataset.photographerName,
+                    type_of_coverage: selectedOption.dataset.coverageType
+                };
+
+                // Check if data is complete from attributes
+                if (eventData.jobcode && eventData.title && eventData.photographer_name && eventData.type_of_coverage) {
+                     populateEventDetails(eventData);
+                     generateDestinationPath(eventData.jobcode);
+                } else {
+                    // Fallback to fetch if data attributes weren't fully populated (optional)
+                     let photoId = selectedOption.value;
+                     console.warn("Fetching details for event via /get_event_details fallback.")
+                     fetch("/get_event_details", {
+                         method: "POST",
+                         headers: { "Content-Type": "application/json" },
+                         body: JSON.stringify({ photoid: photoId })
+                     })
+                     .then(response => response.json())
+                     .then(data => {
+                         if (data.error) {
+                             alert(data.error);
+                             populateEventDetails({});
+                             document.getElementById("destinationFolder").value = '';
+                         } else {
+                             populateEventDetails(data);
+                             generateDestinationPath(data.jobcode);
+                         }
+                     })
+                     .catch((error) => {
+                         console.error("Error fetching event details:", error);
+                         alert("Error fetching event details. Please try again.");
+                         populateEventDetails({});
+                         document.getElementById("destinationFolder").value = '';
+                     });
+                }
+            });
+
+            // Function to populate event details in the form
+            function populateEventDetails(eventData = {}) {
+                document.getElementById("photographerName").value = eventData.photographer_name || '';
+                document.getElementById("jobCode").value = eventData.jobcode || '';
+                document.getElementById("coverageType").value = eventData.type_of_coverage || '';
+                document.getElementById("eventTitle").value = eventData.title || '';
+            }
+
+            // Function to generate destination path
+            function generateDestinationPath(jobcode) {
+                 if (!jobcode) {
+                      document.getElementById("destinationFolder").value = '';
+                      return;
+                 }
+                fetch('/generate_destination_path', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jobcode })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.destination_path) {
+                        document.getElementById("destinationFolder").value = data.destination_path;
+                    } else {
+                        alert("Error generating destination: " + (data.error || "Unknown error."));
+                        document.getElementById("destinationFolder").value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error generating destination path:", error);
+                    alert("Network or server error generating destination path.");
+                    document.getElementById("destinationFolder").value = '';
+                });
+            }
+
+            // Submit form with keywords (Separate from file upload)
+            document.getElementById("keywordForm").addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                let jobcode = document.getElementById("jobCode").value;
+                let path = document.getElementById("destinationFolder").value;
+
+                if (!jobcode) {
+                    alert("Please select an event to get the Job Code."); return;
+                }
+                if (!path) {
+                     alert("Destination path is missing. Ensure an event is selected."); return;
+                }
+                 if (selectedKeywords.length === 0) {
+                     alert("Please add at least one keyword."); return;
+                 }
+
+                 // Assuming keywords apply to the generated path
+                fetch("/add_keyword_entry", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        jobcode: jobcode,
+                        keywords: selectedKeywords,
+                        user: "admin", // Replace with dynamic user if available
+                        path: path // Send the destination path
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Error submitting keywords: " + data.error);
+                    } else {
+                        alert(data.message || "Keywords submitted successfully!");
+                        selectedKeywords = [];
+                        selectedKeywordsDiv.innerHTML = '';
+                    }
+                })
+                .catch((error) => {
+                     console.error("Error submitting keywords:", error);
+                     alert("Error submitting keywords. Check console for details.");
+                });
+            });
+
+
+            // --- Source Folder Selection Handling (for display) ---
+            const sourceFolderInput = document.getElementById("sourceFolder");
+            const fileInput = document.getElementById("fileInput");
+            const selectFolderBtn = document.getElementById("selectFolderBtn");
+            const uploadStatusDiv = document.getElementById("uploadStatus"); // Get status div
+
+            selectFolderBtn.addEventListener("click", function () {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener("change", function () {
+                let files = this.files;
+                if (files.length > 0) {
+                    let folderName = "Selected Folder";
+                    if (files[0].webkitRelativePath) {
+                        const firstSeparatorIndex = files[0].webkitRelativePath.indexOf('/');
+                        if (firstSeparatorIndex > 0) {
+                            folderName = files[0].webkitRelativePath.substring(0, firstSeparatorIndex);
+                        } else if (firstSeparatorIndex === -1 && files[0].webkitRelativePath) {
+                             folderName = files[0].name ? `Folder containing ${files[0].name}` : "Selected Folder" ;
+                        }
+                    } else {
+                         console.warn("webkitRelativePath not available.");
+                    }
+                    sourceFolderInput.value = folderName;
+                    uploadStatusDiv.textContent = `${files.length} file(s) selected from "${folderName}". Ready to upload.`; // Update status
+                } else {
+                    sourceFolderInput.value = "";
+                     uploadStatusDiv.textContent = ""; // Clear status
+                }
+                 // Don't reset this.value = null here - keep the file selection!
+            });
+
+
+            // ==========================================================
+            //       >>> MODIFIED FILE UPLOAD HANDLING <<<
+            // ==========================================================
+            document.getElementById("copyFilesBtn").addEventListener("click", function () {
+                const destinationFolder = document.getElementById("destinationFolder").value.trim();
+                const actualFileInput = document.getElementById("fileInput");
+                const filesToProcess = actualFileInput.files; // Get the FileList
+
+                // --- Validation ---
+                if (filesToProcess.length === 0) {
+                    alert("Please use 'Browse' to select a source folder containing files first.");
+                    return;
+                }
+                if (!destinationFolder) {
+                    alert("Destination folder is missing. Please select an event first.");
+                    return;
+                }
+
+                // --- Prepare FormData for Upload ---
+                const formData = new FormData();
+
+                // 1. Append destination folder
+                formData.append('destination_folder', destinationFolder);
+
+                // 2. Prepare and append relative paths as a JSON string
+                const relativePaths = Array.from(filesToProcess).map(file => file.webkitRelativePath || file.name);
+                formData.append('relative_paths', JSON.stringify(relativePaths));
+
+                // 3. Append each file
+                // The key 'files' must match request.files.getlist('files') in Flask
+                for (let i = 0; i < filesToProcess.length; i++) {
+                    formData.append('files', filesToProcess[i]);
+                }
+
+                console.log("Uploading files to:", destinationFolder);
+                // console.log("FormData prepared:", formData); // Avoid logging potentially large file data in production
+
+                uploadStatusDiv.textContent = `Uploading ${filesToProcess.length} file(s)... Please wait.`;
+                // Disable button during upload?
+                this.disabled = true;
+                this.textContent = "Uploading...";
+
+                // --- Perform the fetch request with FormData ---
+                fetch('/copy_files', { // Endpoint expects multipart/form-data now
+                    method: 'POST',
+                    body: formData
+                    // DO NOT set Content-Type header manually; browser does it correctly for FormData
+                })
+                .then(response => {
+                     // Check if response status is OK (2xx) or Multi-Status (207)
+                     if (!response.ok && response.status !== 207) {
+                          // Try to parse error JSON, otherwise use status text
+                          return response.json().then(errData => {
+                               throw new Error(errData.errors ? errData.errors.join('; ') : `HTTP error ${response.status}`);
+                          }).catch(() => { // Fallback if response not JSON
+                              throw new Error(`HTTP error ${response.status}`);
+                          });
+                     }
+                     return response.json(); // Parse JSON body for both 200 and 207
+                 })
+                .then(data => {
+                    console.log("Server Upload Response:", data);
+                    let message = "";
+                    let messageType = "success"; // For potential styling
+
+                     if (data.success) {
+                         message = `Success: ${data.success} (${data.uploaded_files ? data.uploaded_files.length : 0} files processed).`;
+                     } else if (data.message && data.errors && data.errors.length > 0) {
+                         // Handle 207 Multi-Status response
+                         message = `Completed with errors: ${data.errors.join('; ')}. (${data.uploaded_files ? data.uploaded_files.length : 0} files saved).`;
+                         messageType = "warning";
+                     } else if (data.errors && data.errors.length > 0) {
+                          // Handle 4xx/5xx errors that returned JSON
+                          message = "Error: " + data.errors.join('; ');
+                          messageType = "error";
+                     }
+                      else {
+                         message = "Received unexpected response from server.";
+                         messageType = "error";
+                     }
+
+                    uploadStatusDiv.textContent = message;
+                    uploadStatusDiv.style.color = messageType === 'error' ? 'red' : (messageType === 'warning' ? 'orange' : 'green');
+                    alert(message); // Also show alert for immediate feedback
+
+                     // Optionally clear file input after successful/partial upload
+                     if (messageType !== 'error') {
+                        actualFileInput.value = null; // Clear the selection
+                        sourceFolderInput.value = ""; // Clear display name
+                     }
+                })
+                .catch(error => {
+                    console.error("Error during file upload fetch:", error);
+                    uploadStatusDiv.textContent = `Upload failed: ${error.message}`;
+                    uploadStatusDiv.style.color = 'red';
+                    alert(`Upload failed: ${error.message}. Check console for details.`);
+                })
+                .finally(() => {
+                     // Re-enable button regardless of outcome
+                     this.disabled = false;
+                     this.textContent = "Upload Files";
+                 });
+            });
+            // ==========================================================
+            //       >>> END OF MODIFIED FILE UPLOAD HANDLING <<<
+            // ==========================================================
+
+        }); // End DOMContentLoaded
+    </script>
+
+</body>
+</html>
